@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Belgium Airport Taxi & Private Day Trips</title>
+  <meta name="description" content="Luxury private taxi transfers in Belgium, Brussels Airport, Amsterdam Airport, Paris Airport, Bruges, Ghent, Knokke and Brussels day trips." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <nav class="nav">
+      <div class="brand">Khan Executive Taxi</div>
+      <div class="nav-links">
+        <a href="#transfers">Transfers</a>
+        <a href="#day-trips">Day Trips</a>
+        <a href="#booking">Book</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </nav>
+
+    <div class="hero-content">
+      <p class="eyebrow">Belgium • Amsterdam • Paris</p>
+      <h1>Private Airport Transfers & Premium Day Trips</h1>
+      <p>Book airport to airport, airport to destination, destination to airport, or fixed-price private day trips to Bruges, Ghent, Knokke and Brussels.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#booking">Calculate Transfer Price</a>
+        <a class="btn ghost" href="#day-trips">View Day Trips</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="transfers" class="section">
+      <div class="section-title">
+        <p class="eyebrow">Private transfers</p>
+        <h2>Airport & City Taxi Services</h2>
+      </div>
+      <div class="cards three">
+        <article class="card">
+          <h3>Airport to Airport</h3>
+          <p>Brussels Airport, Charleroi, Antwerp, Liège, Amsterdam Schiphol, Paris CDG and Paris Orly.</p>
+        </article>
+        <article class="card">
+          <h3>Airport to Destination</h3>
+          <p>Hotels, stations, offices, homes and events anywhere in Belgium and nearby countries.</p>
+        </article>
+        <article class="card">
+          <h3>Destination to Airport</h3>
+          <p>Reliable pickup from your address with flight-aware planning and direct WhatsApp booking.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="day-trips" class="section dark">
+      <div class="section-title">
+        <p class="eyebrow">Fixed price</p>
+        <h2>Popular Private Day Trips</h2>
+        <p>Select a trip, enter your details, then pay a deposit or request confirmation.</p>
+      </div>
+
+      <div class="trip-grid">
+        <article class="trip-card">
+          <div class="trip-image bruges"></div>
+          <div class="trip-body">
+            <h3>Bruges Day Trip</h3>
+            <p>Private full-day visit to Bruges from Brussels. Ideal for canals, old town and romantic city walks.</p>
+            <div class="trip-meta"><span>8 hours</span><strong>€360</strong></div>
+            <button onclick="selectDayTrip('Bruges Day Trip', 'Brussels', 'Bruges', 360, '8 hours')" class="btn primary full">Select Trip</button>
+          </div>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-image ghent"></div>
+          <div class="trip-body">
+            <h3>Ghent Day Trip</h3>
+            <p>Historic Ghent private day trip with flexible pickup and return to Brussels.</p>
+            <div class="trip-meta"><span>7 hours</span><strong>€290</strong></div>
+            <button onclick="selectDayTrip('Ghent Day Trip', 'Brussels', 'Ghent', 290, '7 hours')" class="btn primary full">Select Trip</button>
+          </div>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-image knokke"></div>
+          <div class="trip-body">
+            <h3>Knokke Seaside Trip</h3>
+            <p>Luxury seaside day trip to Knokke with comfortable private transport.</p>
+            <div class="trip-meta"><span>8 hours</span><strong>€420</strong></div>
+            <button onclick="selectDayTrip('Knokke Day Trip', 'Brussels', 'Knokke', 420, '8 hours')" class="btn primary full">Select Trip</button>
+          </div>
+        </article>
+
+        <article class="trip-card">
+          <div class="trip-image brussels"></div>
+          <div class="trip-body">
+            <h3>Brussels Private Tour</h3>
+            <p>Private Brussels city tour including Grand Place, Atomium and flexible stops.</p>
+            <div class="trip-meta"><span>5 hours</span><strong>€240</strong></div>
+            <button onclick="selectDayTrip('Brussels Private Tour', 'Brussels', 'Brussels', 240, '5 hours')" class="btn primary full">Select Trip</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="booking" class="section booking-section">
+      <div class="booking-layout">
+        <div class="booking-card">
+          <p class="eyebrow">Booking</p>
+          <h2>Calculate & Book</h2>
+
+          <div class="form-grid">
+            <label>Booking Type
+              <select id="bookingType">
+                <option value="transfer">Airport / City Transfer</option>
+                <option value="day-trip">Day Trip</option>
+              </select>
+            </label>
+
+            <label>Vehicle
+              <select id="vehicleType">
+                <option value="standard">Standard Car - up to 3 passengers</option>
+                <option value="van">Van - up to 8 passengers</option>
+                <option value="premium">Premium Car</option>
+              </select>
+            </label>
+
+            <label>Pickup
+              <input id="pickup" placeholder="Start typing pickup address" />
+            </label>
+
+            <label>Drop-off
+              <input id="dropoff" placeholder="Start typing drop-off address" />
+            </label>
+
+            <label>Date
+              <input id="date" type="date" />
+            </label>
+
+            <label>Time
+              <input id="time" type="time" />
+            </label>
+
+            <label>Name
+              <input id="customerName" placeholder="Your name" />
+            </label>
+
+            <label>Phone / WhatsApp
+              <input id="customerPhone" placeholder="+32..." />
+            </label>
+
+            <label>Passengers
+              <input id="passengers" type="number" min="1" max="8" value="1" />
+            </label>
+
+            <label>Luggage
+              <input id="luggage" type="number" min="0" max="12" value="0" />
+            </label>
+
+            <label class="full-row">Flight number / Notes
+              <textarea id="notes" placeholder="Flight number, pickup instructions, child seat, extra stops..."></textarea>
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button onclick="calculateTransfer()" class="btn primary">Calculate Transfer</button>
+            <button onclick="saveBooking()" class="btn secondary">Save Booking</button>
+          </div>
+        </div>
+
+        <aside class="summary-card">
+          <p class="eyebrow">Summary</p>
+          <h2>Your Quote</h2>
+          <div id="quoteBox" class="quote empty">Select a day trip or calculate a transfer.</div>
+
+          <div class="payment-box">
+            <h3>Payment Options</h3>
+            <p>Use Stripe Payment Links. Replace the placeholder links in <code>script.js</code>.</p>
+            <a id="depositBtn" class="btn pay disabled" target="_blank" rel="noopener">Pay Deposit</a>
+            <a id="fullPayBtn" class="btn pay-alt disabled" target="_blank" rel="noopener">Pay Full Amount</a>
+          </div>
+
+          <div class="contact-buttons">
+            <a id="whatsappBtn" class="btn whatsapp disabled" target="_blank" rel="noopener">Book via WhatsApp</a>
+            <a id="emailBtn" class="btn email disabled">Book via Email</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Khan Executive Taxi</strong>
+    <p>Private airport transfers and day trips in Belgium, Amsterdam and Paris.</p>
+  </footer>
+
+  <script>
+    window.GOOGLE_MAPS_API_KEY = "AIzaSyBNgeVP03fztdWEXpaSn84nmG_c0VZ3J9k";
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>

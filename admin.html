@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taxi Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+  <section class="section">
+    <a href="index.html" class="btn secondary">← Back to website</a>
+    <div class="section-title">
+      <p class="eyebrow">Local admin</p>
+      <h2>Saved Bookings</h2>
+      <p>This dashboard shows bookings saved in this browser only. For a real multi-device admin dashboard, connect a backend later.</p>
+    </div>
+    <div class="booking-card">
+      <button onclick="clearBookings()" class="btn secondary">Clear Saved Bookings</button>
+      <div id="bookingsList" style="margin-top:20px"></div>
+    </div>
+  </section>
+  <script src="admin.js"></script>
+</body>
+</html>
