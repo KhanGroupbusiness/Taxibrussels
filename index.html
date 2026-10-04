@@ -15,7 +15,7 @@
         <a href="#transfers">Transfers</a>
         <a href="#day-trips">Day Trips</a>
         <a href="#booking">Book</a>
-        <a href="admin.html">Admin</a>
+
       </div>
     </nav>
 
@@ -56,7 +56,7 @@
       <div class="section-title">
         <p class="eyebrow">Fixed price</p>
         <h2>Popular Private Day Trips</h2>
-        <p>Select a trip, enter your details, then pay a deposit or request confirmation.</p>
+        <p>Select a trip, enter your details, then choose an available pickup window and request driver approval.</p>
       </div>
 
       <div class="trip-grid">
@@ -119,8 +119,8 @@
             <label>Vehicle
               <select id="vehicleType">
                 <option value="standard">Standard Car - up to 3 passengers</option>
-                <option value="van">Van - up to 8 passengers</option>
-                <option value="premium">Premium Car</option>
+                
+                
               </select>
             </label>
 
@@ -136,11 +136,14 @@
               <input id="date" type="date" />
             </label>
 
-            <label>Time
-              <input id="time" type="time" />
+            <label>Selected pickup time
+              <input id="time" type="time" readonly aria-describedby="slotHelp" />
             </label>
 
-            <label>Name
+            <label class="full-row">Available pickup window
+<select id="availableSlot"><option value="">Choose a date first</option></select>
+</label><p id="slotHelp" class="full-row">All times are Belgian local time. Only available windows can be requested.</p>
+<label>Name
               <input id="customerName" placeholder="Your name" />
             </label>
 
@@ -148,12 +151,15 @@
               <input id="customerPhone" placeholder="+32..." />
             </label>
 
-            <label>Passengers
-              <input id="passengers" type="number" min="1" max="8" value="1" />
+            <label>Email
+<input id="customerEmail" type="email" required maxlength="254" autocomplete="email" />
+</label>
+<label>Passengers
+              <input id="passengers" type="number" min="1" max="3" value="1" />
             </label>
 
             <label>Luggage
-              <input id="luggage" type="number" min="0" max="12" value="0" />
+              <input id="luggage" type="number" min="0" max="4" value="0" />
             </label>
 
             <label class="full-row">Flight number / Notes
@@ -161,9 +167,10 @@
             </label>
           </div>
 
-          <div class="button-row">
+          <label class="consent"><input id="bookingConsent" type="checkbox"> I understand my contact and journey details will be used to review and manage this request. A request is not a confirmed booking.</label><p id="bookingStatus" role="status" aria-live="polite"></p>
+<div class="button-row">
             <button onclick="calculateTransfer()" class="btn primary">Calculate Transfer</button>
-            <button onclick="saveBooking()" class="btn secondary">Save Booking</button>
+            <button id="requestBooking" onclick="saveBooking()" class="btn secondary">Request Booking</button>
           </div>
         </div>
 
@@ -172,17 +179,7 @@
           <h2>Your Quote</h2>
           <div id="quoteBox" class="quote empty">Select a day trip or calculate a transfer.</div>
 
-          <div class="payment-box">
-            <h3>Payment Options</h3>
-            <p>Use Stripe Payment Links. Replace the placeholder links in <code>script.js</code>.</p>
-            <a id="depositBtn" class="btn pay disabled" target="_blank" rel="noopener">Pay Deposit</a>
-            <a id="fullPayBtn" class="btn pay-alt disabled" target="_blank" rel="noopener">Pay Full Amount</a>
-          </div>
-
-          <div class="contact-buttons">
-            <a id="whatsappBtn" class="btn whatsapp disabled" target="_blank" rel="noopener">Book via WhatsApp</a>
-            <a id="emailBtn" class="btn email disabled">Book via Email</a>
-          </div>
+          <div class="payment-box"><h3>Driver approval first</h3><p>Prices are estimates. Your driver will review the route, confirm availability and the final fare, and contact you. Payment arrangements follow approval.</p></div>
         </aside>
       </div>
     </section>
@@ -196,6 +193,8 @@
   <script>
     window.GOOGLE_MAPS_API_KEY = "AIzaSyBNgeVP03fztdWEXpaSn84nmG_c0VZ3J9k";
   </script>
-  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
+  <script src="booking-config.js"></script><script src="booking-api.js"></script>
+  <script src="script.js"></script><script src="availability.js"></script>
 </body>
 </html>

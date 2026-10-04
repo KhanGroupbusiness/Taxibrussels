@@ -4,20 +4,6 @@ const BUSINESS = {
   email: "booking@example.com" // Change to your real email.
 };
 
-const STRIPE_LINKS = {
-  // Replace these with your real Stripe Payment Links.
-  deposit: "https://buy.stripe.com/test_deposit_placeholder",
-  full: "https://buy.stripe.com/test_full_payment_placeholder",
-
-  // Optional trip-specific links. Replace when you create fixed trip products in Stripe.
-  trips: {
-    "Bruges Day Trip": "https://buy.stripe.com/test_bruges_placeholder",
-    "Ghent Day Trip": "https://buy.stripe.com/test_ghent_placeholder",
-    "Knokke Day Trip": "https://buy.stripe.com/test_knokke_placeholder",
-    "Brussels Private Tour": "https://buy.stripe.com/test_brussels_placeholder"
-  }
-};
-
 const PRICING = {
   baseFee: 15,
   pricePerKm: 2.2,
@@ -127,6 +113,8 @@ function calculateTransfer() {
     return;
   }
 
+  const quotedVehicle = document.getElementById("vehicleType").value;
+  const quotedTime = document.getElementById("time").value;
   const service = new google.maps.DistanceMatrixService();
   service.getDistanceMatrix({
     origins: [origin],
@@ -134,6 +122,7 @@ function calculateTransfer() {
     travelMode: google.maps.TravelMode.DRIVING,
     unitSystem: google.maps.UnitSystem.METRIC
   }, (response, status) => {
+    if (origin !== document.getElementById("pickup").value || destination !== document.getElementById("dropoff").value || quotedVehicle !== document.getElementById("vehicleType").value || quotedTime !== document.getElementById("time").value) return;
     if (status !== "OK") {
       alert("Distance calculation failed. Check your Google API settings.");
       return;
@@ -230,7 +219,7 @@ function renderQuote() {
     <p><strong>Duration:</strong> ${escapeHtml(currentQuote.duration)}</p>
     ${extras}
     <div class="big-price">${currentQuote.priceText}</div>
-    <p class="small">Deposit option: ${currentQuote.depositText}</p>
+    <p class="small">Indicative fare — subject to driver approval.</p>
   `;
 }
 
@@ -262,44 +251,7 @@ Estimated price: ${currentQuote.priceText}
 Notes: ${currentQuote.notes || "None"}`;
 }
 
-function updateActionButtons() {
-  const message = buildMessage();
-
-  const whatsapp = document.getElementById("whatsappBtn");
-  whatsapp.href = `https://wa.me/${BUSINESS.whatsappNumber}?text=${encodeURIComponent(message)}`;
-  whatsapp.classList.remove("disabled");
-
-  const email = document.getElementById("emailBtn");
-  email.href = `mailto:${BUSINESS.email}?subject=${encodeURIComponent("Taxi booking request")}&body=${encodeURIComponent(message)}`;
-  email.classList.remove("disabled");
-
-  const deposit = document.getElementById("depositBtn");
-  deposit.href = STRIPE_LINKS.deposit;
-  deposit.textContent = `Pay Deposit ${currentQuote.depositText}`;
-  deposit.classList.remove("disabled");
-
-  const full = document.getElementById("fullPayBtn");
-  full.href = STRIPE_LINKS.trips[currentQuote.title] || STRIPE_LINKS.full;
-  full.textContent = `Pay Full ${currentQuote.priceText}`;
-  full.classList.remove("disabled");
-}
-
-function saveBooking() {
-  if (!currentQuote) {
-    alert("Please select a day trip or calculate a transfer first.");
-    return;
-  }
-
-  buildMessage();
-  const bookings = JSON.parse(localStorage.getItem("taxiBookings") || "[]");
-  bookings.push({
-    ...currentQuote,
-    createdAt: new Date().toISOString()
-  });
-
-  localStorage.setItem("taxiBookings", JSON.stringify(bookings));
-  alert("Booking saved in local admin dashboard.");
-}
+function updateActionButtons() {}
 
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, char => ({
