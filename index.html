@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Belgium Airport Taxi & Private Day Trips</title>
   <meta name="description" content="Luxury private taxi transfers in Belgium, Brussels Airport, Amsterdam Airport, Paris Airport, Bruges, Ghent, Knokke and Brussels day trips." />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20261004-prices" />
 </head>
 <body>
   <header class="hero">
@@ -15,6 +15,8 @@
         <a href="#transfers">Transfers</a>
         <a href="#day-trips">Day Trips</a>
         <a href="#booking">Book</a>
+        <a href="#contact">Contact</a>
+        <a class="driver-link" href="admin.html">Driver dashboard</a>
 
       </div>
     </nav>
@@ -61,45 +63,46 @@
 
       <div class="trip-grid">
         <article class="trip-card">
-          <div class="trip-image bruges"></div>
+          <img class="trip-photo" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Rozenhoedkaai_Brugge.jpg/960px-Rozenhoedkaai_Brugge.jpg?utm_campaign=index&amp;utm_content=thumbnail&amp;utm_source=commons.wikimedia.org" alt="Rozenhoedkaai canal and historic buildings in Bruges" loading="lazy" width="960" height="640">
           <div class="trip-body">
             <h3>Bruges Day Trip</h3>
             <p>Private full-day visit to Bruges from Brussels. Ideal for canals, old town and romantic city walks.</p>
-            <div class="trip-meta"><span>8 hours</span><strong>€360</strong></div>
+            <div class="trip-meta"><span>8 hours</span><strong data-trip-price="trip_bruges">€360</strong></div>
             <button onclick="selectDayTrip('Bruges Day Trip', 'Brussels', 'Bruges', 360, '8 hours')" class="btn primary full">Select Trip</button>
           </div>
         </article>
 
         <article class="trip-card">
-          <div class="trip-image ghent"></div>
+          <img class="trip-photo" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Belgique_-_Gand_-_Graslei_-_02.jpg/960px-Belgique_-_Gand_-_Graslei_-_02.jpg?utm_campaign=index&amp;utm_content=thumbnail&amp;utm_source=commons.wikimedia.org" alt="Historic Graslei buildings in Ghent" loading="lazy" width="960" height="640">
           <div class="trip-body">
             <h3>Ghent Day Trip</h3>
             <p>Historic Ghent private day trip with flexible pickup and return to Brussels.</p>
-            <div class="trip-meta"><span>7 hours</span><strong>€290</strong></div>
+            <div class="trip-meta"><span>7 hours</span><strong data-trip-price="trip_ghent">€290</strong></div>
             <button onclick="selectDayTrip('Ghent Day Trip', 'Brussels', 'Ghent', 290, '7 hours')" class="btn primary full">Select Trip</button>
           </div>
         </article>
 
         <article class="trip-card">
-          <div class="trip-image knokke"></div>
+          <img class="trip-photo" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Knokke_Albertstrand_R02.jpg/960px-Knokke_Albertstrand_R02.jpg?utm_campaign=index&amp;utm_content=thumbnail&amp;utm_source=commons.wikimedia.org" alt="Albert Beach at Knokke on the Belgian coast" loading="lazy" width="960" height="640">
           <div class="trip-body">
             <h3>Knokke Seaside Trip</h3>
             <p>Luxury seaside day trip to Knokke with comfortable private transport.</p>
-            <div class="trip-meta"><span>8 hours</span><strong>€420</strong></div>
-            <button onclick="selectDayTrip('Knokke Day Trip', 'Brussels', 'Knokke', 420, '8 hours')" class="btn primary full">Select Trip</button>
+            <div class="trip-meta"><span>8 hours</span><strong data-trip-price="trip_knokke">€420</strong></div>
+            <button onclick="selectDayTrip('Knokke Seaside Trip', 'Brussels', 'Knokke', 420, '8 hours')" class="btn primary full">Select Trip</button>
           </div>
         </article>
 
         <article class="trip-card">
-          <div class="trip-image brussels"></div>
+          <img class="trip-photo" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Grand-Place%2C_Brussels_-_panorama%2C_June_2018_%28cropped%29.jpg/960px-Grand-Place%2C_Brussels_-_panorama%2C_June_2018_%28cropped%29.jpg?utm_campaign=index&amp;utm_content=thumbnail&amp;utm_source=commons.wikimedia.org" alt="Grand Place architecture in Brussels" loading="lazy" width="960" height="640">
           <div class="trip-body">
             <h3>Brussels Private Tour</h3>
             <p>Private Brussels city tour including Grand Place, Atomium and flexible stops.</p>
-            <div class="trip-meta"><span>5 hours</span><strong>€240</strong></div>
+            <div class="trip-meta"><span>5 hours</span><strong data-trip-price="trip_brussels">€240</strong></div>
             <button onclick="selectDayTrip('Brussels Private Tour', 'Brussels', 'Brussels', 240, '5 hours')" class="btn primary full">Select Trip</button>
           </div>
         </article>
       </div>
+<details class="photo-credits"><summary>Photo credits</summary><p>Photos resized and cropped to fit the cards.</p><ul><li>Bruges: <a href="https://commons.wikimedia.org/wiki/File:Rozenhoedkaai_Brugge.jpg" target="_blank" rel="noopener noreferrer">Hans Hillewaert</a> · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a></li><li>Ghent: <a href="https://commons.wikimedia.org/wiki/File:Belgique_-_Gand_-_Graslei_-_02.jpg" target="_blank" rel="noopener noreferrer">EmDee</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a></li><li>Knokke: <a href="https://commons.wikimedia.org/wiki/File:Knokke_Albertstrand_R02.jpg" target="_blank" rel="noopener noreferrer">Marc Ryckaert</a> · <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener noreferrer">CC BY 3.0</a></li><li>Brussels: <a href="https://commons.wikimedia.org/wiki/File:Grand-Place,_Brussels_-_panorama,_June_2018_(cropped).jpg" target="_blank" rel="noopener noreferrer">Celuici; crop by BaldBoris</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a></li></ul></details>
     </section>
 
     <section id="booking" class="section booking-section">
@@ -185,9 +188,16 @@
     </section>
   </main>
 
+  <section id="contact" class="section contact-section">
+    <div class="section-title"><p class="eyebrow">Contact us</p><h2>Speak to your driver</h2><p>Questions about a journey? Call or email Khan Executive Taxi. Booking requests submitted above remain pending until the driver approves them.</p></div>
+    <div class="contact-details"><a href="tel:+32466190824">+32 466 19 08 24</a><a href="mailto:khangroup.motors@gmail.com">khangroup.motors@gmail.com</a></div>
+    <div class="button-row"><a class="btn primary" href="tel:+32466190824">Call us</a><a class="btn secondary" href="mailto:khangroup.motors@gmail.com">Email us</a></div>
+  </section>
   <footer>
     <strong>Khan Executive Taxi</strong>
     <p>Private airport transfers and day trips in Belgium, Amsterdam and Paris.</p>
+    <p><a href="tel:+32466190824">+32 466 19 08 24</a> · <a href="mailto:khangroup.motors@gmail.com">khangroup.motors@gmail.com</a></p>
+    <p><a class="footer-driver" href="admin.html">Driver dashboard</a></p>
   </footer>
 
   <script>
@@ -195,6 +205,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
   <script src="booking-config.js"></script><script src="booking-api.js"></script>
-  <script src="script.js"></script><script src="availability.js"></script>
+  <script src="pricing.js?v=20261004-prices"></script>
+  <script src="script.js?v=20261004-prices"></script><script src="availability.js?v=20261004-prices"></script>
 </body>
 </html>

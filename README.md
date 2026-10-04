@@ -58,3 +58,38 @@ JavaScript syntax and Belgian summer/winter/DST conversion checks were run local
 
 https://supabase.com/docs/guides/database/functions
 https://supabase.com/docs/guides/database/postgres/row-level-security
+
+## Weekly driver availability
+
+The driver dashboard now includes weekly availability with these editable defaults:
+- Monday–Friday: 18:00–22:00.
+- Saturday–Sunday: 05:00–23:00.
+- All times use Europe/Brussels.
+
+Use **Preview upcoming dates**, review the pickup windows, then **Publish available windows**. Publish 1, 2, 4 or 8 weeks at a time. The default is 4 weeks. There is no unattended recurring publication; publish another range before your current availability runs out.
+
+Each generated window permits one customer request, as in the existing booking system. Choose a reserved ride duration that includes the entire journey, pickup travel and a buffer. The default is 1 hour for transfers. Day trips use 8-hour windows; periods shorter than the chosen duration generate no windows. A partial remainder is not published.
+
+The weekly hours are saved locally on the current device for the signed-in driver. Published windows are stored in Supabase and available across devices. The weekly template itself is not synced across devices. Saving weekly hours alone does not publish availability.
+
+Existing windows are preserved, including closed windows and reservations. Preview/publish skips overlaps. Editing the template changes only future publications; it does not move previously published windows. Use **Exceptions for a date** to close unreserved windows, and use **Add a one-off window** to add different hours. Reopening remains available in the individual availability cards. Review any new requests received while closing a date before approving them.
+
+### Deploy this update
+Replace `admin.html`, `admin.js` and `style.css`, and add `weekly.js` in the GitHub repository root. Commit and wait for GitHub Pages to publish. No SQL migration is needed. Keep the existing Supabase configuration and password-reset redirect URLs.
+
+## Business contact and navigation
+The menu and footer link to `admin.html`. Business contact is +32 466 19 08 24 / khangroup.motors@gmail.com. The website offers call and email links. Booking requests continue to be stored in Supabase for driver approval; this update does not configure automatic email notifications. Also replace `index.html` and `script.js` when deploying this contact update.
+
+## Editable published fares
+Run `pricing-upgrade.sql` once in the existing Supabase project's SQL Editor. Do not rerun the original booking schema on an existing project. This upgrade creates a public fare table; only authenticated driver admins can change its values. No existing requests or availability are modified.
+
+In the driver dashboard, use **Prices & fares** to edit day trips, transfer supplements, vehicle multipliers and fixed airport routes, then **Save published prices**. Prices are stored in Supabase, not only on your device. New visitors and refreshed booking pages receive the saved prices. Existing quotations and approved final fares are preserved. If two devices edit prices, an outdated save is rejected; load published prices again.
+
+Customers cannot calculate a fare if published pricing cannot be loaded. After uploading, complete the SQL setup before accepting requests. Day-trip prices are starting fares before the selected vehicle multiplier.
+
+### Files for this combined update
+Replace `index.html`, `script.js`, `availability.js`, `admin.html`, `admin.js`, `style.css`; add `weekly.js`, `pricing.js`, `pricing-admin.js`. Keep your existing `booking-config.js` and `booking-api.js`.
+
+Destination photos use Wikimedia thumbnails with source and Creative Commons licence credits in the day-trip section. They are hosted externally.
+
+Business contact: +32 466 19 08 24 and khangroup.motors@gmail.com. Booking requests are reviewed in the portal using Approve/Decline. Automatic booking email notifications have not been configured; email contact links open the customer's email app and Email customer opens a driver email draft.

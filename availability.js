@@ -58,5 +58,5 @@ window.saveBooking = async function() {
 // Quotes remain indicative until the driver confirms the route and final fare.
 window.updateActionButtons=function() {};
 const originalSelectDayTrip=window.selectDayTrip;
-window.selectDayTrip=function(...args){originalSelectDayTrip(...args);refreshAvailability();};
+window.selectDayTrip=async function(...args){await originalSelectDayTrip(...args);await refreshAvailability();};
 refreshAvailability();

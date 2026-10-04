@@ -1,7 +1,7 @@
 const BUSINESS = {
   name: "Khan Executive Taxi",
-  whatsappNumber: "32000000000", // Change to your real WhatsApp number, no + or spaces.
-  email: "booking@example.com" // Change to your real email.
+  whatsappNumber: "32466190824",
+  email: "khangroup.motors@gmail.com"
 };
 
 const PRICING = {
@@ -27,6 +27,20 @@ const FIXED_ROUTES = [
   { from: ["brussels airport", "zaventem"], to: ["charles de gaulle", "cdg", "paris airport"], price: 430, label: "Brussels Airport to Paris CDG" },
   { from: ["brussels airport", "zaventem"], to: ["orly"], price: 450, label: "Brussels Airport to Paris Orly" }
 ];
+
+const DAY_TRIP_KEYS={'Bruges Day Trip':'trip_bruges','Ghent Day Trip':'trip_ghent','Knokke Seaside Trip':'trip_knokke','Brussels Private Tour':'trip_brussels'};
+let publishedPrices=null;
+let priceLoadError=null;
+const pricingPromise=TaxiPricing.load().then(values=>{
+ publishedPrices=values;
+ Object.assign(PRICING,{baseFee:values.base_fee,pricePerKm:values.per_km,minimumFare:values.minimum_fare,airportPickupFee:values.airport_fee,nightSurcharge:values.night_fee,vehicleMultiplier:{standard:values.standard_multiplier,van:values.van_multiplier,premium:values.premium_multiplier}});
+ ['route_brussels','route_charleroi','route_schiphol','route_cdg','route_orly'].forEach((key,index)=>FIXED_ROUTES[index].price=values[key]);
+ document.querySelectorAll('[data-trip-price]').forEach(node=>node.textContent='€'+Number(values[node.dataset.tripPrice]).toFixed(2));
+}).catch(error=>{
+ priceLoadError=error;
+ document.querySelectorAll('[data-trip-price]').forEach(node=>node.textContent='Contact for price');
+});
+async function pricesAvailable(){await pricingPromise;if(priceLoadError){alert('Published prices are unavailable. Please contact us for a quote.');return false;}return true;}
 
 let currentQuote = null;
 
@@ -77,7 +91,8 @@ function isNightTime() {
   return hour >= 22 || hour < 6;
 }
 
-function calculateTransfer() {
+async function calculateTransfer() {
+  if(!await pricesAvailable())return;
   const origin = document.getElementById("pickup").value;
   const destination = document.getElementById("dropoff").value;
 
@@ -165,7 +180,10 @@ function calculateTransfer() {
   });
 }
 
-function selectDayTrip(title, origin, destination, price, duration) {
+async function selectDayTrip(title, origin, destination, price, duration) {
+  if(!await pricesAvailable())return;
+  price=publishedPrices[DAY_TRIP_KEYS[title]];
+  if(!Number.isFinite(price)){alert('This trip is unavailable. Please contact us.');return;}
   document.getElementById("bookingType").value = "day-trip";
   document.getElementById("pickup").value = origin;
   document.getElementById("dropoff").value = destination;

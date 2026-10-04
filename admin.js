@@ -65,6 +65,8 @@ async function checkAccess(){
 async function loadDashboard(){
  const [slots,requests]=await Promise.all([TaxiAPI.client.from('taxi_slots').select('*').order('starts_at'),TaxiAPI.client.from('taxi_requests').select('*').order('created_at',{ascending:false})]);
  if(slots.error||requests.error) throw new Error(slots.error?.message||requests.error?.message);
+ window.taxiDashboardData={slots:slots.data,requests:requests.data};
+ document.dispatchEvent(new CustomEvent('taxi-dashboard-loaded'));
  const slotMap=new Map(slots.data.map(s=>[s.id,s]));
  const list=document.getElementById('slotsList');list.replaceChildren();
  for(const s of slots.data.filter(s=>Date.parse(s.ends_at)>Date.now())){
