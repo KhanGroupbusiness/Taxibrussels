@@ -1,4 +1,4 @@
-# Khan Executive Taxi — approval-based booking draft
+# Belgium Ride — approval-based booking draft
 
 This update keeps the existing GitHub Pages website and replaces local-only bookings with a Supabase-backed request flow. It is a setup-ready draft, not a deployed or production-certified booking service.
 
@@ -78,7 +78,7 @@ Existing windows are preserved, including closed windows and reservations. Previ
 Replace `admin.html`, `admin.js` and `style.css`, and add `weekly.js` in the GitHub repository root. Commit and wait for GitHub Pages to publish. No SQL migration is needed. Keep the existing Supabase configuration and password-reset redirect URLs.
 
 ## Business contact and navigation
-The menu and footer link to `admin.html`. Business contact is +32 466 19 08 24 / khangroup.motors@gmail.com. The website offers call and email links. Booking requests continue to be stored in Supabase for driver approval; this update does not configure automatic email notifications. Also replace `index.html` and `script.js` when deploying this contact update.
+The menu and footer link to `admin.html`. Business contact is +32 466 19 08 24 / info@belgiumride.com. The website offers call and email links. Booking requests continue to be stored in Supabase for driver approval; this update does not configure automatic email notifications. Also replace `index.html` and `script.js` when deploying this contact update.
 
 ## Editable published fares
 Run `pricing-upgrade.sql` once in the existing Supabase project's SQL Editor. Do not rerun the original booking schema on an existing project. This upgrade creates a public fare table; only authenticated driver admins can change its values. No existing requests or availability are modified.
@@ -92,4 +92,4 @@ Replace `index.html`, `script.js`, `availability.js`, `admin.html`, `admin.js`, 
 
 Destination photos use Wikimedia thumbnails with source and Creative Commons licence credits in the day-trip section. They are hosted externally.
 
-Business contact: +32 466 19 08 24 and khangroup.motors@gmail.com. Booking requests are reviewed in the portal using Approve/Decline. Automatic booking email notifications have not been configured; email contact links open the customer's email app and Email customer opens a driver email draft.
+Business contact: +32 466 19 08 24 and info@belgiumride.com. Booking requests are reviewed in the portal using Approve/Decline. Automatic booking email notifications have not been configured; email contact links open the customer's email app and Email customer opens a driver email draft.

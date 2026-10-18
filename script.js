@@ -1,7 +1,7 @@
 const BUSINESS = {
-  name: "Khan Executive Taxi",
+  name: "Belgium Ride",
   whatsappNumber: "32466190824",
-  email: "khangroup.motors@gmail.com"
+  email: "info@belgiumride.com"
 };
 
 const PRICING = {
