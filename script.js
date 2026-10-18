@@ -237,7 +237,7 @@ function renderQuote() {
     <p><strong>Duration:</strong> ${escapeHtml(currentQuote.duration)}</p>
     ${extras}
     <div class="big-price">${currentQuote.priceText}</div>
-    <p class="small">Indicative fare — subject to driver approval.</p>
+    <p class="small">Fare for this quote — ride subject to driver approval.</p>
   `;
 }
 

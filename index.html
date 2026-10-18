@@ -58,7 +58,7 @@
       <div class="section-title">
         <p class="eyebrow">Fixed price</p>
         <h2>Popular Private Day Trips</h2>
-        <p>Select a trip, enter your details, then choose an available pickup window and request driver approval.</p>
+        <p>Select a trip and pickup window, review your fare, then pay securely. Your ride requires driver approval.</p>
       </div>
 
       <div class="trip-grid">
@@ -173,7 +173,7 @@
           <label class="consent"><input id="bookingConsent" type="checkbox"> I understand my contact and journey details will be used to review and manage this request. A request is not a confirmed booking.</label><p id="bookingStatus" role="status" aria-live="polite"></p>
 <div class="button-row">
             <button onclick="calculateTransfer()" class="btn primary">Calculate Transfer</button>
-            <button id="requestBooking" onclick="saveBooking()" class="btn secondary">Request Booking</button>
+            <button id="requestBooking" onclick="saveBooking()" class="btn secondary">Accept and pay (test)</button>
           </div>
         </div>
 
@@ -182,7 +182,7 @@
           <h2>Your Quote</h2>
           <div id="quoteBox" class="quote empty">Select a day trip or calculate a transfer.</div>
 
-          <div class="payment-box"><h3>Driver approval first</h3><p>Prices are estimates. Your driver will review the route, confirm availability and the final fare, and contact you. Payment arrangements follow approval.</p></div>
+          <div class="payment-box"><h3>Test payments</h3><p>Use a Stripe test card. Payment does not confirm your ride: your driver must approve the journey. No real money is charged in this test version.</p></div>
         </aside>
       </div>
     </section>
@@ -207,5 +207,6 @@
   <script src="booking-config.js"></script><script src="booking-api.js"></script>
   <script src="pricing.js?v=20261004-prices"></script>
   <script src="script.js?v=20261004-prices"></script><script src="availability.js?v=20261004-prices"></script>
+<script src="payments.js"></script>
 </body>
 </html>

@@ -20,7 +20,7 @@ async function refreshAvailability() {
   availableSlots=rows.filter(s=>!hours || (Date.parse(s.ends_at)-Date.parse(s.starts_at))/3600000>=hours);
   slotSelect.replaceChildren(new Option(availableSlots.length?'Select an available pickup time':'No available times for this date',''));
   for(const s of availableSlots) slotSelect.add(new Option(`${TaxiAPI.format(s.starts_at)} — reserved until ${TaxiAPI.format(s.ends_at)}${s.label?' · '+s.label:''}`,s.id));
-  bookingNotice(availableSlots.length?'Your request needs driver approval. No payment is taken now.':'Try another date. Only published availability is bookable.');
+  bookingNotice(availableSlots.length?'Choose a pickup window and review your fare. Your ride needs driver approval.':'Try another date. Only published availability is bookable.');
  } catch(e) { if(revision===availabilityRevision){slotSelect.replaceChildren(new Option('Availability unavailable',''));bookingNotice(e.message);} }
 }
 function invalidateBookingQuote() {
