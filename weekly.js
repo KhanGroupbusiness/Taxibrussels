@@ -19,7 +19,7 @@
   validate(schedule);
   if(!/^\d{4}-\d{2}-\d{2}$/.test(from)||!Number.isFinite(Date.parse(from+'T12:00:00Z')))throw new Error('Choose a valid start date.');
   if(![1,2,4,8].includes(weeks)||![60,120,240,480].includes(duration))throw new Error('Choose a valid number of weeks and ride duration.');
-  if(!['Transfer','Day Trip'].includes(service))throw new Error('Choose a service.');
+  if(!['Transfer','Day Trip','Both'].includes(service))throw new Error('Choose a service.');
   if(from<dayISO(new Date(now)))throw new Error('Choose today or a future date.');
   if(from>addDays(dayISO(new Date(now)),90))throw new Error('Choose a start date within the next 90 days.');
   const result={rows:[],overlaps:0,tooSoon:0,tooFar:0,shortMinutes:0};
@@ -29,9 +29,10 @@
    if(!day.enabled)continue;
    for(const period of day.periods){
     const start=minutes(period.from),end=minutes(period.to);
-    result.shortMinutes+=(end-start)%duration;
-    for(let m=start;m+duration<=end;m+=duration){
-     const starts_at=convert(date+'T'+time(m)),ends_at=convert(date+'T'+time(m+duration));
+    if(service==='Day Trip'&&end-start<240){result.shortMinutes+=end-start;continue;}
+    const periodLength=end-start;
+    for(let m=start;m+periodLength<=end;m+=periodLength){
+     const starts_at=convert(date+'T'+time(m)),ends_at=convert(date+'T'+time(m+periodLength));
      const a=Date.parse(starts_at),b=Date.parse(ends_at);
      if(a<now+4*3600000){result.tooSoon++;continue;}
      if(a>now+90*86400000){result.tooFar++;continue;}
@@ -67,7 +68,7 @@
   const group=document.createElement('div');group.className='time-period';
   for(const [key,title] of [['from','From'],['to','Until']]){
    const label=document.createElement('label');label.textContent=title;
-   const input=document.createElement('input');input.type='time';input.step=1800;input.value=period[key];input.className='period-'+key;input.required=true;input.setAttribute('aria-label',days[index]+' '+title.toLowerCase());input.addEventListener('change',invalidate);label.append(input);group.append(label);
+   const input=document.createElement('input');input.type='time';input.step=900;input.value=period[key];input.className='period-'+key;input.required=true;input.setAttribute('aria-label',days[index]+' '+title.toLowerCase());input.addEventListener('change',invalidate);label.append(input);group.append(label);
   }
   const remove=document.createElement('button');remove.type='button';remove.className='btn secondary small-button';remove.textContent='Remove';remove.setAttribute('aria-label','Remove '+days[index]+' period');remove.addEventListener('click',()=>{group.remove();invalidate();});group.append(remove);parent.insertBefore(group,before);
  }
@@ -86,21 +87,21 @@
  }
  function options(){return{from:el('weeklyFrom').value,weeks:Number(el('weeklyWeeks').value),duration:Number(el('weeklyDuration').value),service:el('weeklyService').value};}
  async function fetchSlots(){const {data,error}=await TaxiAPI.client.from('taxi_slots').select('*').order('starts_at');if(error)throw error;return data;}
- function summary(result){return`${result.rows.length} new windows. ${result.overlaps} overlapping windows skipped; ${result.tooSoon} too close to pickup; ${result.tooFar} beyond 90 days. ${result.shortMinutes} minutes left over at period ends.`;}
+ function summary(result){return`${result.rows.length} new windows. ${result.overlaps} overlapping windows skipped; ${result.tooSoon} too close to pickup; ${result.tooFar} beyond 90 days. ${result.shortMinutes} minutes in periods too short for a day trip.`;}
  el('weeklyForm').addEventListener('submit',async event=>{
   event.preventDefault();if(busy)return;busy=true;el('previewWeekly').disabled=true;
   try{
    await requireAccess();invalidate();const schedule=readSchedule(),settings=options();
-   if(settings.service==='Day Trip'&&settings.duration<480)throw new Error('For day trips, choose an 8-hour reserved window. Shorter weekday periods will not produce windows.');
+   
    const result=plan(schedule,{...settings,existing:await fetchSlots()});pending={schedule,settings,result};
    el('weeklySummary').textContent=summary(result);const list=el('weeklyPreviewList');list.replaceChildren();
    const grouped=new Map();for(const slot of result.rows){const date=dayISO(new Date(slot.starts_at));if(!grouped.has(date))grouped.set(date,[]);grouped.get(date).push(slot);}
-   for(const [date,slots] of grouped){const row=document.createElement('div');row.className='preview-day';const title=document.createElement('strong');title.textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Brussels',weekday:'short',day:'numeric',month:'short'}).format(new Date(date+'T12:00:00Z'));const description=document.createElement('span');const clock=iso=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Brussels',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(iso));description.textContent=`${slots.length} windows · pickups ${slots.map(s=>clock(s.starts_at)).join(', ')}`;row.append(title,description);list.append(row);}
+   for(const [date,slots] of grouped){const row=document.createElement('div');row.className='preview-day';const title=document.createElement('strong');title.textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Brussels',weekday:'short',day:'numeric',month:'short'}).format(new Date(date+'T12:00:00Z'));const description=document.createElement('span');const clock=iso=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Brussels',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(iso));description.textContent=`${slots.length} windows · ${slots.map(s=>clock(s.starts_at)+'–'+clock(s.ends_at)).join(', ')}`;row.append(title,description);list.append(row);}
    el('weeklyPreview').hidden=false;el('publishWeekly').disabled=!result.rows.length;notify(result.rows.length?'Check the dates and pickup times below before publishing.':'No new windows fit these settings. Check reserved duration or existing availability.');
   }catch(error){notify(error.message);}finally{busy=false;el('previewWeekly').disabled=false;}
  });
  el('saveWeekly').addEventListener('click',async()=>{try{await requireAccess();localStorage.setItem(storageKey,JSON.stringify(readSchedule()));notify('Weekly hours saved on this device. Preview and publish to make dates bookable.');}catch(error){notify(error.message);}});
- el('weeklyService').addEventListener('change',()=>{if(el('weeklyService').value==='Day Trip')el('weeklyDuration').value='480';invalidate();});
+ el('weeklyService').addEventListener('change',()=>{if(el('weeklyService').value==='Day Trip')el('weeklyDuration').value='240';invalidate();});
  for(const id of ['weeklyFrom','weeklyWeeks','weeklyDuration'])el(id).addEventListener('change',invalidate);
  el('publishWeekly').addEventListener('click',async()=>{
   if(!pending||busy)return;busy=true;el('publishWeekly').disabled=true;el('previewWeekly').disabled=true;
