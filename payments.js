@@ -17,7 +17,7 @@
   const box=el('quoteBox');box.replaceChildren();
   const label=document.createElement('span');label.className='fare-label';label.textContent='Your fare';
   const price=document.createElement('strong');price.className='big-price';price.textContent=money(currentQuote.price);
-  const detail=document.createElement('p');detail.className='small';detail.textContent=currentQuote.type==='Day Trip'?'4-hour private day trip · '+selectedTrip:currentQuote.distance+' · about '+currentQuote.duration;
+  const detail=document.createElement('p');detail.className='small';detail.textContent=currentQuote.type==='Day Trip'?currentQuote.duration+' · '+selectedTrip:currentQuote.distance+' · about '+currentQuote.duration;
   box.append(label,price,detail);
  };
  async function call(body){
