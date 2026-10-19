@@ -58,7 +58,7 @@
   for(const id of ['customerName','customerPhone','customerEmail','passengers','luggage'])if(!el(id).reportValidity())return;
   if(value('customerName').length<2||value('customerPhone').length<6){bookingNotice('Enter your name and phone number.');return;}
   if(!el('bookingConsent').checked){bookingNotice('Please accept the booking terms before continuing.');el('bookingConsent').focus();return;}
-  requestBusy=true;updateActionButtons();bookingNotice('Opening secure test payment…');
+  requestBusy=true;updateActionButtons();bookingNotice('Opening secure payment…');
   try{
    const data=await call({action:'checkout',quote_token:currentQuote.quote_token,customer:{name:value('customerName'),phone:value('customerPhone'),email:value('customerEmail'),passengers:Number(value('passengers')),luggage:Number(value('luggage')),notes:value('notes')}});
    const target=new URL(data.url);if(target.protocol!=='https:'||target.hostname!=='checkout.stripe.com')throw Error('Invalid checkout URL.');
