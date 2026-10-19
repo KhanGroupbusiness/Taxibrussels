@@ -53,53 +53,75 @@ resetForm.addEventListener('submit',async e=>{
 });
 function textElement(tag,text){const node=document.createElement(tag);node.textContent=text;return node;}
 function action(label,fn){const b=textElement('button',label);b.className='btn secondary';b.addEventListener('click',async()=>{b.disabled=true;try{await fn();}catch(e){notice(e.message);}finally{b.disabled=false;}});return b;}
+let isOwner=false,me=null,stage='new',view='rides',allRides=[],assignments=[],drivers=[],ownRides=[],renderSerial=0,polling=false;
+const el=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('en-BE',{style:'currency',currency:'EUR'}).format(Number(n)),rpc=(name,args={})=>TaxiAPI.rpc(name,args);
+function node(tag,text,cls){const n=textElement(tag,text);if(cls)n.className=cls;return n;}
+function showSection(v){view=v;for(const s of document.querySelectorAll('.portal-section'))s.hidden=s.id!=='section-'+v;for(const b of document.querySelectorAll('[data-section]'))b.setAttribute('aria-pressed',String(b.dataset.section===v));}
+for(const b of document.querySelectorAll('[data-section]'))b.addEventListener('click',()=>showSection(b.dataset.section));
+async function read(table){const {data,error}=await TaxiAPI.client.from(table).select('*');if(error)throw error;return data;}
 async function checkAccess(){
- if(!TaxiAPI.ready){notice('Connect Supabase using booking-config.js and run schema.sql first.');return;}
- if(recovering){await showRecovery();return;}
- const {data:{session}}=await TaxiAPI.client.auth.getSession();
- const allowed=session && await TaxiAPI.rpc('taxi_is_admin',{});
- panel.hidden=!allowed;login.hidden=!!allowed;
- if(session&&!allowed) notice('This user has no driver access. Add its UUID to taxi_private.admins in the SQL Editor.');
- if(allowed) await loadDashboard();
+ if(!TaxiAPI.ready){notice('Online portal is not configured.');return;}if(recovering){await showRecovery();return;}
+ const {data:{session},error}=await TaxiAPI.client.auth.getSession();if(error)throw error;me=session?.user?.id;
+ if(!me){panel.hidden=true;login.hidden=false;return;}
+ isOwner=!!await rpc('taxi_is_admin');const own=await read('taxi_drivers');
+ if(!isOwner&&!own.some(d=>d.user_id===me&&d.active)){panel.hidden=true;login.hidden=false;notice('Your driver profile is not active. Contact Belgium Ride dispatch.');return;}
+ panel.hidden=false;login.hidden=true;el('portalTitle').textContent=isOwner?'Dispatch dashboard':'My driver portal';
+ for(const n of document.querySelectorAll('.owner-only'))n.hidden=!isOwner;
+ showSection('rides');await loadDashboard();
 }
+function latest(r){return assignments.filter(a=>a.booking_id===r.id).sort((a,b)=>Date.parse(b.offered_at)-Date.parse(a.offered_at)||b.id.localeCompare(a.id))[0];}
+function category(r){if(r.status==='approved')return Date.parse(r.booked_until)>Date.now()?'confirmed':'history';if(r.status!=='pending'||r.payment_status!=='paid')return 'history';const a=latest(r);return a?.status==='offered'?'waiting':a?.status==='accepted'?'ready':'new';}
+const stages=[['new','New / reassign'],['waiting','Awaiting driver'],['ready','Ready to confirm'],['confirmed','Confirmed'],['history','History & payments']];
 async function loadDashboard(){
- const [slots,requests]=await Promise.all([TaxiAPI.client.from('taxi_slots').select('*').order('starts_at'),TaxiAPI.client.from('taxi_requests').select('*').order('created_at',{ascending:false})]);
- if(slots.error||requests.error) throw new Error(slots.error?.message||requests.error?.message);
- window.taxiDashboardData={slots:slots.data,requests:requests.data};
- document.dispatchEvent(new CustomEvent('taxi-dashboard-loaded'));
- const slotMap=new Map(slots.data.map(s=>[s.id,s]));
- const list=document.getElementById('slotsList');list.replaceChildren();
- for(const s of slots.data.filter(s=>Date.parse(s.ends_at)>Date.now())){
-  const card=textElement('article','');card.className='quote';
-  const occupied=requests.data.filter(r=>r.slot_id===s.id&&['pending','approved'].includes(r.status));
-  card.append(textElement('p',`${TaxiAPI.format(s.starts_at)} → ${TaxiAPI.format(s.ends_at)} · ${s.service} · ${s.closed?'Closed':occupied.length?occupied.length+' journeys · other times remain open':'Open'}${s.label?' · '+s.label:''}`));
-  card.append(action(s.closed?'Reopen':'Close window',async()=>{const {error}=await TaxiAPI.client.from('taxi_slots').update({closed:!s.closed}).eq('id',s.id);if(error)throw error;await loadDashboard();}));list.append(card);
- }
- if(!list.children.length) list.append(textElement('p','No future windows. Publish your first available window above.'));
- const bookings=document.getElementById('bookingsList'),upcoming=document.getElementById('upcomingList'),history=document.getElementById('historyList');for(const list of [bookings,upcoming,history])list.replaceChildren();
- requests.data.sort((a,b)=>a.status==='approved'&&b.status==='approved'?Date.parse(a.pickup_at||slotMap.get(a.slot_id)?.starts_at)-Date.parse(b.pickup_at||slotMap.get(b.slot_id)?.starts_at):Date.parse(b.created_at)-Date.parse(a.created_at));
- for(const r of requests.data){
-  const s=slotMap.get(r.slot_id),pickup=r.pickup_at||s?.starts_at,until=r.booked_until||s?.ends_at; const card=textElement('article','');card.className='quote';
-  card.append(textElement('h3',`${r.status.toUpperCase()} · ${r.name}`));
-  for(const line of [`Reference: ${r.id}`,`Payment: ${r.payment_status || "unpaid"}`,`Pickup: ${pickup?TaxiAPI.format(pickup):'Unknown'}`,`Reserved until: ${until?TaxiAPI.format(until):'Unknown'}`,`${r.service}${r.trip?' · '+r.trip:''}`,`${r.pickup} → ${r.dropoff}`,`Phone: ${r.phone} · Email: ${r.email}`,`${r.vehicle==='van'?'Mercedes van or similar':'Standard car'} · ${r.passengers} passengers · ${r.luggage} bags`,`Indicative fare: €${r.estimated_price ?? 'Not provided'}${r.final_price!==null?' · Final fare: €'+r.final_price:''}`,`Notes: ${r.notes||'None'}`]) card.append(textElement('p',line));
-  if(r.status==='pending'&&r.payment_status!=='checkout_pending'){
-   const label=textElement('label','Final fare (€)');const price=document.createElement('input');price.type='number';price.min='0.01';price.max='10000';price.step='0.01';price.value=r.final_price||r.estimated_price||'';price.readOnly=r.payment_status==='paid';label.append(price);card.append(label);
-   const checkLabel=textElement('label','');const check=document.createElement('input');check.type='checkbox';checkLabel.append(check,document.createTextNode(' I checked that this entire journey and pickup travel fit the reserved window.'));card.append(checkLabel);
-   card.append(action('Approve',async()=>{if(!check.checked)throw new Error('Check the journey duration before approval.');if(!price.value||!price.checkValidity())throw new Error('Enter a valid final fare.');await TaxiAPI.rpc('taxi_decide',{p_request:r.id,p_status:'approved',p_price:Number(price.value)});await loadDashboard();notice('Approved. Your automatic confirmation email has been queued.');}));
-   card.append(action('Decline and release time',async()=>{await TaxiAPI.rpc('taxi_decide',{p_request:r.id,p_status:'declined',p_price:null});await loadDashboard();notice('Declined. Automatic notifications and any required refund will be processed.');}));
-  }
-  if(r.status==='approved')card.append(action('Cancel and release time',async()=>{if(!confirm('Cancel this approved ride? You must inform the customer.'))return;await TaxiAPI.rpc('taxi_decide',{p_request:r.id,p_status:'cancelled',p_price:null});await loadDashboard();notice('Cancelled. Automatic notifications and any required refund will be processed.');}));
-  const email=textElement('a','Email customer');email.className='btn secondary';
-  const outcome=r.status==='approved'?`Your booking is confirmed. Final fare: €${r.final_price}.`:r.status==='pending'?'Your request is pending driver review. This is not a confirmed ride.':`Your booking request has been ${r.status}.`;
-  email.href=`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Belgium Ride — '+r.status)}&body=${encodeURIComponent(`Hello ${r.name},\n\n${outcome}\nReference: ${r.id}\nPickup: ${pickup?TaxiAPI.format(pickup):''}\nRoute: ${r.pickup} → ${r.dropoff}\n\nBelgium Ride`)}`;card.append(email);card.dataset.search=[r.id,r.name,r.email,r.phone,r.pickup,r.dropoff].join(' ').toLowerCase();
- const future=Date.parse(until)>Date.now();
- (r.status==='pending'&&r.payment_status!=='checkout_pending'?bookings:r.status==='approved'&&future?upcoming:history).append(card);
- }
- for(const [list,message] of [[bookings,'No rides awaiting approval.'],[upcoming,'No upcoming confirmed rides.'],[history,'No booking history yet.']])if(!list.children.length)list.append(textElement('p',message));
- document.dispatchEvent(new CustomEvent('taxi-rides-rendered'));
+ if(polling||!me)return;polling=true;try{
+ if(isOwner){await rpc('taxi_dispatch_expire');[allRides,assignments,drivers]=await Promise.all([read('taxi_requests'),read('taxi_assignments'),read('taxi_drivers')]);
+ const audit=await TaxiAPI.client.from('taxi_dispatch_events').select('*').order('created_at',{ascending:false}).limit(100);if(audit.error)throw audit.error;
+ el('dispatchAudit').replaceChildren(...audit.data.map(e=>node('p',`${TaxiAPI.format(e.created_at)} · ${e.event.replaceAll('_',' ')} · ${e.booking_id||''}${e.detail?' · '+e.detail:''}`)));
+ renderRoster();window.taxiDashboardData={requests:allRides};document.dispatchEvent(new CustomEvent('taxi-dashboard-loaded'));
+ }else ownRides=await rpc('taxi_driver_rides');
+ await loadHours();renderRides();
+ }finally{polling=false;}
 }
-login.addEventListener('submit',async e=>{e.preventDefault();try{if(!TaxiAPI.ready)throw new Error('Connect the database first.');const {error}=await TaxiAPI.client.auth.signInWithPassword({email:document.getElementById('adminEmail').value.trim(),password:document.getElementById('adminPassword').value});document.getElementById('adminPassword').value='';if(error)throw error;notice('');await checkAccess();}catch(error){notice(error.message);}});
-document.getElementById('refresh').addEventListener('click',()=>loadDashboard().catch(e=>notice(e.message)));
-document.getElementById('logout').addEventListener('click',async()=>{await TaxiAPI.client.auth.signOut();panel.hidden=true;login.hidden=false;document.getElementById('bookingsList').replaceChildren();document.getElementById('slotsList').replaceChildren();notice('Signed out.');});
-if(callbackError){recovering=false;cleanRecoveryURL();notice('Reset link failed: '+callbackError+'. Request a new link using Forgot password.');}
-else checkAccess().catch(e=>notice(e.message));
+function renderRoster(){el('driverRoster').replaceChildren();for(const d of drivers){const card=node('article','', 'quote');card.append(node('h3',d.name),node('p',`${d.email} · ${d.vehicle==='van'?'Van':'Car'} · ${d.active?'Active':'Inactive'}`),action(d.active?'Deactivate':'Activate',async()=>{await rpc('taxi_dispatch_toggle_driver',{p_driver:d.user_id,p_active:!d.active});await loadDashboard();}));el('driverRoster').append(card);}}
+function field(label,type,value){const wrap=node('label',label),input=document.createElement('input');input.type=type;input.value=value;wrap.append(input);return {wrap,input};}
+function renderRides(){const serial=++renderSerial;const out=el('dispatchRides');out.replaceChildren();const term=el('rideSearch').value.trim().toLowerCase();
+ if(isOwner){el('dispatchStages').replaceChildren(...stages.map(([key,title])=>{const b=node('button',`${title} (${allRides.filter(r=>category(r)===key).length})`);b.type='button';b.setAttribute('aria-pressed',String(stage===key));b.addEventListener('click',()=>{stage=key;renderRides();});return b;}));
+ el('dispatchHelp').textContent=stage==='new'?'Assign a paid booking to an available driver. Driver rejection never cancels the customer booking.':stage==='ready'?'The driver accepted. Your final confirmation sends the customer email.':stage==='waiting'?'Waiting for driver responses. Expired offers return to your queue.':'';
+ const sorted=allRides.filter(r=>category(r)===stage).sort((a,b)=>Date.parse(a.pickup_at)-Date.parse(b.pickup_at));
+ for(const r of sorted){if(![r.id,r.name,r.pickup,r.dropoff].join(' ').toLowerCase().includes(term))continue;const card=rideCard(r);const a=latest(r);if(a)card.append(node('p',`Latest offer: ${drivers.find(d=>d.user_id===a.driver_id)?.name||'Driver'} · ${a.status} · Driver amount ${money(a.driver_pay)}`));
+ if(r.status==='pending'&&r.payment_status==='paid'){
+ const choices=node('select',''),label=node('label','Assign a driver');label.append(choices);choices.append(new Option('Loading available drivers…',''));card.append(label);
+ rpc('taxi_dispatch_drivers',{p_request:r.id}).then(rows=>{if(serial!==renderSerial)return;choices.replaceChildren(new Option('Choose an available driver',''));for(const d of rows.filter(d=>d.available))choices.add(new Option(d.name+(d.user_id===me?' (me)':''),d.user_id));}).catch(e=>{choices.replaceChildren(new Option('Could not load drivers',''));notice(e.message);});
+ const pay=field('Driver amount (€)','number','');pay.input.min='0';pay.input.max='10000';pay.input.step='.01';pay.input.required=true;
+ const due=field('Response deadline (minutes)','number','30');due.input.min='5';due.input.max='240';due.input.required=true;card.append(pay.wrap,due.wrap);
+ card.append(action('Assign & notify driver',async()=>{if(!choices.value||!pay.input.reportValidity()||!due.input.reportValidity())throw Error('Choose a driver and enter their payment and response deadline.');await rpc('taxi_dispatch_assign',{p_request:r.id,p_driver:choices.value,p_pay:Number(pay.input.value),p_minutes:Number(due.input.value)});notice('Assignment saved. Driver notification queued. Customer remains pending.');await loadDashboard();}));
+ card.append(action('Drive it myself',async()=>{await rpc('taxi_dispatch_assign',{p_request:r.id,p_driver:me,p_pay:0,p_minutes:30});notice('Assigned to you. Review and confirm the customer.');await loadDashboard();}));
+ if(a?.status==='accepted')card.append(action('Confirm customer booking',async()=>{if(!confirm('Confirm this accepted driver and send the customer confirmation?'))return;await rpc('taxi_decide',{p_request:r.id,p_status:'approved',p_price:Number(r.final_price)});notice('Customer booking confirmed. Existing confirmation email has been queued.');await loadDashboard();}));
+ card.append(action('Decline booking & refund',async()=>{if(!confirm('Decline the CUSTOMER booking and start its full refund? This is different from reassigning a driver.'))return;await rpc('taxi_decide',{p_request:r.id,p_status:'declined',p_price:null});notice('Booking declined. Your existing refund workflow will process it.');await loadDashboard();}));
+ }
+ if(r.status==='approved')card.append(action('Cancel customer booking & refund',async()=>{if(!confirm('Cancel this confirmed booking and start the refund?'))return;await rpc('taxi_decide',{p_request:r.id,p_status:'cancelled',p_price:null});await loadDashboard();}));
+ out.append(card);
+ }
+ }else{el('dispatchHelp').textContent='Accepting tells dispatch you can drive. The customer is confirmed only after dispatch gives final approval.';
+ for(const r of ownRides){if(![r.booking_id,r.pickup,r.dropoff].join(' ').toLowerCase().includes(term))continue;const card=rideCard({...r,id:r.booking_id,name:r.customer_name||'Assignment',payment_status:null,final_price:null});card.append(node('p',`Your payment: ${money(r.driver_pay)} · ${r.status}`));
+ if(r.status==='offered'){card.append(node('p',`Respond before ${TaxiAPI.format(r.deadline)}`));const note=field('Note for dispatch (optional)','text','');note.input.maxLength=1000;card.append(note.wrap);for(const [label,accept] of [['Accept assignment',true],['Reject assignment',false]])card.append(action(label,async()=>{await rpc('taxi_dispatch_respond',{p_assignment:r.id,p_accept:accept,p_note:note.input.value});notice('Response sent to dispatch.');await loadDashboard();}));}
+ if(r.status==='accepted')card.append(node('p','Accepted — awaiting final confirmation from dispatch.'));
+ out.append(card);
+ }}if(!out.children.length)out.append(node('p','No rides in this section.'));
+}
+function rideCard(r){const c=node('article','', 'quote dispatch-ride');c.append(node('h3',r.pickup+' → '+r.dropoff),node('p',`${TaxiAPI.format(r.pickup_at)} → ${TaxiAPI.format(r.booked_until)}`),node('p',`${r.vehicle==='van'?'Van':'Car'} · ${r.passengers} passengers · ${r.luggage} bags`),node('p',`${r.service}${r.trip?' · '+r.trip:''}`),node('p','Reference: '+r.id));if(r.name)c.append(node('p',r.name));if(r.phone)c.append(node('p','Phone: '+r.phone));if(isOwner)c.append(node('p',`Customer fare: ${money(r.final_price)} · ${r.payment_status}`));if(r.notes)c.append(node('p','Notes: '+r.notes));return c;}
+let hoursLoaded=false;
+async function loadHours(){if(hoursLoaded)return;const [saved,exceptions]=await Promise.all([read('taxi_driver_hours'),read('taxi_driver_days')]);const days=[[1,'Monday'],[2,'Tuesday'],[3,'Wednesday'],[4,'Thursday'],[5,'Friday'],[6,'Saturday'],[0,'Sunday']];el('driverHoursRows').replaceChildren();
+ for(const [weekday,title]of days){const h=saved.find(x=>x.driver_id===me&&x.weekday===weekday)||{enabled:false,opens:'09:00',closes:'22:00'};const row=node('div','', 'working-hours-row');row.dataset.weekday=weekday;const label=node('label',title),toggle=document.createElement('input');toggle.type='checkbox';toggle.checked=h.enabled;toggle.className='enabled';label.prepend(toggle);row.append(label);for(const key of ['opens','closes']){const f=field(key==='opens'?'From':'Until','time',h[key].slice(0,5));f.input.step=900;f.input.required=true;f.input.className=key;row.append(f.wrap);}el('driverHoursRows').append(row);}
+ el('dayExceptions').replaceChildren(...exceptions.filter(x=>x.driver_id===me).sort((a,b)=>a.day.localeCompare(b.day)).map(x=>node('p',`${x.day}: ${x.enabled?x.opens.slice(0,5)+'–'+x.closes.slice(0,5):'Day off'}`)));hoursLoaded=true;
+}
+el('driverHoursForm').addEventListener('submit',async e=>{e.preventDefault();try{const hours=[...el('driverHoursRows').children].map(row=>({weekday:Number(row.dataset.weekday),enabled:row.querySelector('.enabled').checked,opens:row.querySelector('.opens').value,closes:row.querySelector('.closes').value}));await rpc('taxi_driver_save_hours',{p_hours:hours});notice('Your weekly hours are saved. Existing paid bookings remain reserved.');}catch(e){notice(e.message);}});
+async function saveDay(remove=false){if(!el('exceptionDate').reportValidity())return;await rpc('taxi_driver_save_day',{p_day:el('exceptionDate').value,p_enabled:el('exceptionEnabled').checked,p_opens:el('exceptionFrom').value,p_closes:el('exceptionUntil').value,p_remove:remove});hoursLoaded=false;await loadHours();notice('Date availability saved. Existing bookings are preserved.');}
+el('dayForm').addEventListener('submit',async e=>{e.preventDefault();try{await saveDay();}catch(e){notice(e.message);}});el('removeException').addEventListener('click',()=>saveDay(true).catch(e=>notice(e.message)));
+el('driverForm').addEventListener('submit',async e=>{e.preventDefault();try{await rpc('taxi_dispatch_register',{p_email:el('driverEmail').value,p_name:el('driverName').value,p_vehicle:el('driverVehicle').value});e.target.reset();notice('Driver registered. They can sign in and publish their own hours.');await loadDashboard();}catch(e){notice(e.message);}});
+el('rideSearch').addEventListener('input',renderRides);
+login.addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await TaxiAPI.client.auth.signInWithPassword({email:el('adminEmail').value.trim(),password:el('adminPassword').value});el('adminPassword').value='';if(error)throw error;hoursLoaded=false;notice('');await checkAccess();}catch(e){notice(e.message);}});
+el('refresh').addEventListener('click',()=>loadDashboard().catch(e=>notice(e.message)));
+el('logout').addEventListener('click',async()=>{await TaxiAPI.client.auth.signOut();me=null;hoursLoaded=false;allRides=[];assignments=[];drivers=[];ownRides=[];for(const id of ['dispatchRides','driverRoster','dispatchAudit','driverHoursRows','dayExceptions'])el(id).replaceChildren();for(const input of el('pricingForm').querySelectorAll('input'))input.value='';el('pricingFields').disabled=true;panel.hidden=true;login.hidden=false;notice('Signed out.');});
+setInterval(()=>{if(me&&!panel.hidden&&!document.hidden&&view==='rides')loadDashboard().catch(e=>notice(e.message));},30000);
+if(callbackError){recovering=false;cleanRecoveryURL();notice('Reset link failed: '+callbackError+'. Request a new link.');}else checkAccess().catch(e=>notice(e.message));

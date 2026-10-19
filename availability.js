@@ -14,7 +14,7 @@ async function refreshAvailability(keepSelection=false){
  if(!TaxiAPI.ready||!day)return;
  try{
   const service=document.getElementById('bookingType').value==='day-trip'?'Day Trip':'Transfer';
-  const rows=await TaxiAPI.rpc('taxi_pickup_times',{p_day:day,p_service:service,p_minutes:requiredJourneyMinutes});
+  const rows=await TaxiAPI.rpc('taxi_pickup_times_dispatch',{p_day:day,p_service:service,p_minutes:requiredJourneyMinutes,p_vehicle:document.getElementById('vehicleType').value});
   if(revision!==availabilityRevision)return;
   availableSlots=rows.map(s=>({...s,id:s.slot_id+'|'+s.pickup_at}));
   slotSelect.replaceChildren(new Option(rows.length?'Choose your pickup time':'No pickup times available',''));
