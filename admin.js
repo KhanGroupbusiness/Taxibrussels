@@ -82,7 +82,16 @@ async function loadDashboard(){
  await loadHours();renderRides();
  }finally{polling=false;}
 }
-function renderRoster(){el('driverRoster').replaceChildren();for(const d of drivers){const card=node('article','', 'quote');card.append(node('h3',d.name),node('p',`${d.email} · ${d.vehicle==='van'?'Van':'Car'} · ${d.active?'Active':'Inactive'}`),action(d.active?'Deactivate':'Activate',async()=>{await rpc('taxi_dispatch_toggle_driver',{p_driver:d.user_id,p_active:!d.active});await loadDashboard();}));el('driverRoster').append(card);}}
+function renderRoster(){
+ el('driverRoster').replaceChildren();
+ for(const d of drivers){
+  const card=node('article','', 'quote');card.append(node('h3',d.name),node('p',`${d.email} · ${d.active?'Active':'Inactive'}`));
+  const label=node('label','Vehicle types'),select=document.createElement('select');
+  for(const [key,title] of [['standard','Car'],['van','Van'],['both','Both Car and Van']])select.add(new Option(title,key));select.value=d.vehicle;label.append(select);card.append(label);
+  card.append(action('Save vehicle types',async()=>{await rpc('taxi_dispatch_set_vehicle',{p_driver:d.user_id,p_vehicle:select.value});notice('Vehicle types saved. One shared driver calendar prevents car/van overlaps.');await loadDashboard();}));
+  card.append(action(d.active?'Deactivate':'Activate',async()=>{await rpc('taxi_dispatch_toggle_driver',{p_driver:d.user_id,p_active:!d.active});await loadDashboard();}));el('driverRoster').append(card);
+ }
+}
 function field(label,type,value){const wrap=node('label',label),input=document.createElement('input');input.type=type;input.value=value;wrap.append(input);return {wrap,input};}
 function renderRides(){const serial=++renderSerial;const out=el('dispatchRides');out.replaceChildren();const term=el('rideSearch').value.trim().toLowerCase();
  if(isOwner){el('dispatchStages').replaceChildren(...stages.map(([key,title])=>{const b=node('button',`${title} (${allRides.filter(r=>category(r)===key).length})`);b.type='button';b.setAttribute('aria-pressed',String(stage===key));b.addEventListener('click',()=>{stage=key;renderRides();});return b;}));
