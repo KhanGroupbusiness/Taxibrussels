@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brussels Airport Transfers &amp; Private Taxi | Belgium Ride</title>
   <meta name="description" content="Book Brussels Airport transfers, private business travel and 4-hour day trips with Belgium Ride. Choose your pickup time and see your fare before payment.">
-  <link rel="stylesheet" href="style.css?v=20261018-simple" />
+  <link rel="stylesheet" href="style.css?v=20261019-vehicles" />
 <link rel="canonical" href="https://belgiumride.com/"><meta property="og:site_name" content="Belgium Ride"><meta property="og:type" content="website"><meta property="og:title" content="Brussels Airport Transfers &amp; Private Taxi | Belgium Ride"><meta property="og:description" content="Airport transfers, business travel and 4-hour private day trips in Belgium. Choose your pickup time and see your fare online."><meta property="og:url" content="https://belgiumride.com/"><meta name="twitter:card" content="summary"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "TaxiService", "name": "Belgium Ride", "url": "https://belgiumride.com/", "telephone": "+32466190824", "email": "info@belgiumride.com", "areaServed": {"@type": "Country", "name": "Belgium"}, "serviceType": ["Brussels Airport transfers", "Private business travel", "Private day trips"]}</script></head>
 <body>
   <header class="hero">
@@ -109,7 +109,11 @@
       <div class="booking-layout">
         <div class="booking-card">
           <p class="eyebrow">Booking</p>
-          <h2>Book your ride</h2>
+          <h2>Book your ride</h2><div class="vehicle-choices" role="group" aria-label="Choose your vehicle">
+<button type="button" class="vehicle-card selected" data-vehicle="standard" aria-pressed="true"><img src="tesla-model-3.jpg" alt="Illustrative Tesla Model 3" width="640" height="360" loading="lazy"><strong>Tesla Model 3 or similar</strong><span>Electric comfort · 1–3 passengers</span></button>
+<button type="button" class="vehicle-card" data-vehicle="van" aria-pressed="false"><img src="mercedes-van.jpg" alt="Illustrative Mercedes passenger van" width="640" height="360" loading="lazy"><strong>Mercedes van or similar</strong><span>Travel together · 1–8 passengers</span></button></div><p class="small">Vehicle photos are illustrative. Your ride is confirmed after driver approval.</p>
+<div class="quick-routes"><h3>Popular transfers</h3><p>Choose a route, then your date and pickup time.</p>
+<button type="button" data-route-pickup="Brussels Airport (BRU), Zaventem, Belgium" data-route-dropoff="Brussels, Belgium">Brussels Airport → Brussels</button><button type="button" data-route-pickup="Brussels Airport (BRU), Zaventem, Belgium" data-route-dropoff="Brussels South Charleroi Airport (CRL), Belgium">Brussels Airport → Charleroi Airport</button><button type="button" data-route-pickup="Brussels South Charleroi Airport (CRL), Belgium" data-route-dropoff="Brussels Airport (BRU), Zaventem, Belgium">Charleroi Airport → Brussels Airport</button><button type="button" data-route-pickup="Brussels Airport (BRU), Zaventem, Belgium" data-route-dropoff="Bruges, Belgium">Brussels Airport → Bruges</button><button type="button" data-route-pickup="Brussels, Belgium" data-route-dropoff="Brussels Airport (BRU), Zaventem, Belgium">Brussels → Brussels Airport</button></div><p class="cancellation-note"><strong>Free cancellation until 24 hours before pickup.</strong> Later cancellations are non-refundable. Full refund if we cannot accept your booking.</p>
 
           <div class="form-grid">
             <label>Booking Type
@@ -121,7 +125,7 @@
 
             <label>Vehicle
               <select id="vehicleType">
-                <option value="standard">Standard Car - up to 3 passengers</option>
+                <option value="standard">Tesla Model 3 or similar — up to 3 passengers</option><option value="van">Mercedes van or similar — up to 8 passengers</option>
                 
                 
               </select>
@@ -169,16 +173,16 @@
             </label>
           </div>
 
-          <label class="consent"><input id="bookingConsent" type="checkbox"> I agree to the <a href="booking-terms.html" target="_blank" rel="noopener">booking, cancellation and waiting terms</a>. My ride is confirmed only after driver approval. I have read the <a href="privacy.html" target="_blank" rel="noopener">privacy notice</a> explaining how my contact and journey details are used.</label><p class="small">All-inclusive transport fare: VAT, normal parking and tolls for the agreed journey are included. No hidden booking fees.</p><p class="small">Free cancellation at least 24 hours before pickup. Airport waiting: 60 minutes from actual flight arrival; other pickups: 15 minutes. Additional waiting: €10 per started 15 minutes, agreed separately.</p><p id="bookingStatus" role="status" aria-live="polite"></p>
+          <label class="consent"><input id="bookingConsent" type="checkbox"><span> I agree to the <a href="booking-terms.html" target="_blank" rel="noopener">booking, cancellation and waiting terms</a>. My ride is confirmed only after driver approval. I have read the <a href="privacy.html" target="_blank" rel="noopener">privacy notice</a> explaining how my contact and journey details are used.</span></label><p class="small">All-inclusive transport fare: VAT, normal parking and tolls for the agreed journey are included. No hidden booking fees.</p><p class="small">Free cancellation at least 24 hours before pickup. Airport waiting: 60 minutes from actual flight arrival; other pickups: 15 minutes. Additional waiting: €10 per started 15 minutes, agreed separately.</p><p id="bookingStatus" role="status" aria-live="polite"></p>
 <div class="button-row">
             
-            <button id="requestBooking" onclick="saveBooking()" class="btn primary full" disabled>Continue to payment</button>
+            <p class="small"><strong>Free cancellation until 24 hours before pickup.</strong> Payment is collected now; your ride requires driver approval. Full refund if declined.</p><button id="requestBooking" onclick="saveBooking()" class="btn primary full" disabled>Continue to payment</button>
           </div>
 <p class="small">Secure payment. Your ride is confirmed after driver approval.</p>
         </div>
       </div>
     </section>
-  </main>
+  <details class="photo-credits"><summary>Vehicle photo credits</summary><p>Illustrative photographs resized for display: Tesla — <a href="https://commons.wikimedia.org/wiki/File:2021_Tesla_Model_3,_front_11.10.21.jpg">Kevauto</a>, CC BY-SA 4.0; Mercedes — <a href="https://commons.wikimedia.org/wiki/File:Mercedes-Benz_V-Klasse_(W447)_Vito_119_CDI_(2019)_(52198584990).jpg">Charles</a>, CC BY 2.0. <a href="https://creativecommons.org/licenses/by-sa/4.0/">Tesla licence</a> · <a href="https://creativecommons.org/licenses/by/2.0/">Mercedes licence</a>.</p></details></main>
 
   <section id="contact" class="section contact-section">
     <div class="section-title"><p class="eyebrow">Contact us</p><h2>Speak to your driver</h2><p>Questions about a journey? Call or email Belgium Ride. Booking requests submitted above remain pending until the driver approves them.</p></div>
@@ -200,6 +204,6 @@
   <script src="booking-config.js"></script><script src="booking-api.js"></script>
   <script src="pricing.js?v=20261018-simple"></script>
   <script src="script.js?v=20261018-simple"></script><script src="availability.js?v=20261018-simple"></script>
-<script src="payments.js?v=20261018-simple"></script>
+<script src="payments.js?v=20261019-vehicles"></script><script src="vehicle-booking.js?v=20261019-vehicles"></script>
 </body>
 </html>

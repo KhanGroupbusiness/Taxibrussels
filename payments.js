@@ -18,7 +18,7 @@
   const label=document.createElement('span');label.className='fare-label';label.textContent='Your fare';
   const price=document.createElement('strong');price.className='big-price';price.textContent=money(currentQuote.price);
   const detail=document.createElement('p');detail.className='small';detail.textContent=currentQuote.type==='Day Trip'?currentQuote.duration+' · '+selectedTrip:currentQuote.distance+' · about '+currentQuote.duration;
-  box.append(label,price,detail);
+  const policy=document.createElement('p');policy.className='cancellation-note';policy.textContent='Free cancellation until 24 hours before pickup. Full refund if we decline your booking.';box.append(label,price,detail,policy);
  };
  async function call(body){
   const {data,error}=await TaxiAPI.client.functions.invoke('booking-checkout',{body});
